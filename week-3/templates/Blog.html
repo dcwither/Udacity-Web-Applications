@@ -1,0 +1,21 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Blog</title>
+</head>
+<body>
+
+<h1>Devin's Blog</h1>
+
+<hr>
+
+{% for post in posts %}
+<div class="Post">
+    <div class="PostTitle">{{post.subject}}</div>
+    <pre class="PostContent">{{post.content}}</pre>
+</div>
+{% endfor %}
+
+</body>
+</html>

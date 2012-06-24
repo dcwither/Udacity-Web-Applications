@@ -18,7 +18,17 @@ def valid_email(email):
     return not email or EMAIL_RE.match(email)
 
 ################# Handlers ##################
-class RegisterHandler(BaseHandler.BaseHandler):
+class UserHandler(BaseHandler.BaseHandler):
+    def login(self, user):
+        self.response.headers.add_header("Set-Cookie",
+                                         "username=%s; Path=/" % str(User.make_secure_value(user.username)))
+        self.redirect('/blog/welcome')
+
+    def logout(self):
+        self.response.headers.add_header("Set-Cookie", "username=; Path=/")
+        self.redirect('/blog/signup')
+
+class RegisterHandler(UserHandler):
     def get(self):
         self.render("signup-form.html")
 
@@ -57,20 +67,31 @@ class RegisterHandler(BaseHandler.BaseHandler):
         else:
             user = User.User.register(username=username, password=password, email=email)
             user.put()
-            self.response.headers.add_header("Set-Cookie",
-                                             "username=%s; Path=/" % str(User.make_secure_value(user.username)))
+            self.login(user)
 
-            self.redirect('/blog/welcome')
-
-class LoginHandler(BaseHandler.BaseHandler):
+class LoginHandler(UserHandler):
     def get(self):
+        self.render('login-form.html')
+        return
+    def post(self):
+        username = self.request.get('username')
+        password = self.request.get('password')
+        user = User.User.login(username, password)
+        if user:
+            self.login(user)
+        else:
+            self.render('login-form.html', error = "Invalid Login")
         return
 
-class WelcomeHandler(BaseHandler.BaseHandler):
+class LogoutHandler(UserHandler):
+    def get(self):
+        self.logout()
+
+class WelcomeHandler(UserHandler):
     def get(self):
         cookieValue = self.request.cookies.get('username')
         username = User.check_secure_value(cookieValue)
         if username:
             self.render('welcome.html', username = username)
         else:
-            self.error(404)
+            self.logout()

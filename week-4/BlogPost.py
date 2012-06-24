@@ -19,7 +19,7 @@ class BlogPost(db.Model):
 
 class NewPostHandler(BaseHandler.BaseHandler):
     def render_Post(self, subject="", content="", error=""):
-        self.render(template="NewPost.html", subject=subject, content=content, error=error)
+        self.render(template="newpost.html", subject=subject, content=content, error=error)
 
     def get(self):
         self.render_Post()
